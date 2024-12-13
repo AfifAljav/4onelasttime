@@ -26,26 +26,41 @@ jobs:
           persist-credentials: true # Ensures credentials are available for subsequent steps
           fetch-depth: 0 # Fetches all history for all branches and tags
 
-      - name: Update Timestamp File
+      - name: Update Timestamp Files
         run: |
           current_time=$(date '+%Y-%m-%d %H:%M:%S')
           echo "Updated on $current_time" > TIMESTAMP.txt
+          echo "Wayah: $current_time" > Wayah.txt
+          echo "Waktu: $current_time" > Waktu.txt
+          echo "Wektu: $current_time" > Wektu.txt
+
+          # Tambahkan komentar unik agar selalu dianggap perubahan
+          echo "# Unique ID: $RANDOM-$current_time" >> TIMESTAMP.txt
 
       - name: Setup Git Configuration
         run: |
-          git config user.email "rxmxdhxni@gmail.com"
-          git config user.name "dante4rt"
+          git config user.email "njolchipz@gmail.com"
+          git config user.name "AfifAljav"
+
+      - name: Pull and Rebase
+        run: |
+          git pull --rebase origin master || {
+            echo "Conflicts detected. Resolving...";
+            git rebase --abort
+            git merge origin/master --strategy-option ours
+          }
 
       - name: Prepare Commit
         run: |
           commit_messages=("Update: ⏰" "Refresh: 🔄" "Renew: 🌟" "Revise: 📝" "Amend: 🛠" "Adjust: 🔧" "Change: 📈" "Modify: 🖊" "Transform: 🌀" "Revamp: 🌈")
           random_msg=${commit_messages[$RANDOM % ${#commit_messages[@]}]}
 
-          git add TIMESTAMP.txt
+          git add -A
           git commit -m "$random_msg - $current_time" || echo "No changes to commit."
 
       - name: GitHub Push
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          directory: '.'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin master || {
+            echo "Push failed. Retrying with force...";
+            git push origin master --force-with-lease;
+          }
