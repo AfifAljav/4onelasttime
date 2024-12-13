@@ -34,33 +34,21 @@ jobs:
           echo "Waktu: $current_time" > Waktu.txt
           echo "Wektu: $current_time" > Wektu.txt
 
-          # Tambahkan komentar unik agar selalu dianggap perubahan
-          echo "# Unique ID: $RANDOM-$current_time" >> TIMESTAMP.txt
-
       - name: Setup Git Configuration
         run: |
           git config user.email "njolchipz@gmail.com"
           git config user.name "AfifAljav"
-
-      - name: Pull and Rebase
-        run: |
-          git pull --rebase origin master || {
-            echo "Conflicts detected. Resolving...";
-            git rebase --abort
-            git merge origin/master --strategy-option ours
-          }
 
       - name: Prepare Commit
         run: |
           commit_messages=("Update: ⏰" "Refresh: 🔄" "Renew: 🌟" "Revise: 📝" "Amend: 🛠" "Adjust: 🔧" "Change: 📈" "Modify: 🖊" "Transform: 🌀" "Revamp: 🌈")
           random_msg=${commit_messages[$RANDOM % ${#commit_messages[@]}]}
 
-          git add -A
+          git add TIMESTAMP.txt Wayah.txt Waktu.txt Wektu.txt
           git commit -m "$random_msg - $current_time" || echo "No changes to commit."
 
       - name: GitHub Push
-        run: |
-          git push origin master || {
-            echo "Push failed. Retrying with force...";
-            git push origin master --force-with-lease;
-          }
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          directory: '.'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
